@@ -1,21 +1,47 @@
+# name: Sync BEVFormer to Aliyun
+# on: [workflow_dispatch]
+# jobs:
+#   sync:
+#     runs-on: ubuntu-latest
+#     steps:
+#     - name: Login to Aliyun ACR
+#       uses: docker/login-action@v2
+#       with:
+#         # 这里用你的公网地址
+#         registry: crpi-0a38dh228o5y7lb7.cn-shanghai.personal.cr.aliyuncs.com
+#         username: tabqe # 你的阿里云账号名
+#         password: zxc.15937538933 # 你在控制台设置的“访问凭证”密码
+#     - name: Pull and Push
+#       run: |
+#         # 1. 从 Docker Hub 拉取（GitHub 环境拉这个很快）
+#         docker pull aitotra/bevformer:v1.0-mini
+#         # 2. 打标签改成你自己的阿里云地址
+#         docker tag aitotra/bevformer:v1.0-mini crpi-0a38dh228o5y7lb7.cn-shanghai.personal.cr.aliyuncs.com/bevformer2/bevformer2:v1.0-mini
+#         # 3. 推送到阿里云
+#         docker push crpi-0a38dh228o5y7lb7.cn-shanghai.personal.cr.aliyuncs.com/bevformer2/bevformer2:v1.0-mini
+
 name: Sync BEVFormer to Aliyun
 on: [workflow_dispatch]
+
 jobs:
   sync:
     runs-on: ubuntu-latest
+    env:
+      REGISTRY: crpi-0a38dh228o5y7lb7.cn-shanghai.personal.cr.aliyuncs.com
+      REPO_PATH: bevformer/bevformer   # ✅ 改成你控制台真实存在的 namespace/repo
+      TAG: v1.0-mini
     steps:
-    - name: Login to Aliyun ACR
-      uses: docker/login-action@v2
-      with:
-        # 这里用你的公网地址
-        registry: crpi-0a38dh228o5y7lb7.cn-shanghai.personal.cr.aliyuncs.com
-        username: tabqe # 你的阿里云账号名
-        password: zxc.15937538933 # 你在控制台设置的“访问凭证”密码
-    - name: Pull and Push
-      run: |
-        # 1. 从 Docker Hub 拉取（GitHub 环境拉这个很快）
-        docker pull aitotra/bevformer:v1.0-mini
-        # 2. 打标签改成你自己的阿里云地址
-        docker tag aitotra/bevformer:v1.0-mini crpi-0a38dh228o5y7lb7.cn-shanghai.personal.cr.aliyuncs.com/bevformer2/bevformer2:v1.0-mini
-        # 3. 推送到阿里云
-        docker push crpi-0a38dh228o5y7lb7.cn-shanghai.personal.cr.aliyuncs.com/bevformer2/bevformer2:v1.0-mini
+      - name: Login to Aliyun ACR
+        uses: docker/login-action@v3
+        with:
+          registry: crpi-0a38dh228o5y7lb7.cn-shanghai.personal.cr.aliyuncs.com
+          username: tabqe
+          password: zxc.15937538933
+
+      - name: Pull, tag, push
+        run: |
+          set -eux
+          docker pull aitotra/bevformer:${TAG}
+          docker tag aitotra/bevformer:${TAG} ${REGISTRY}/${REPO_PATH}:${TAG}
+          docker push ${REGISTRY}/${REPO_PATH}:${TAG}
+
