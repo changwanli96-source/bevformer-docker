@@ -27,21 +27,25 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     env:
-      REGISTRY: crpi-0a38dh228o5y7lb7.cn-shanghai.personal.cr.aliyuncs.com
-      REPO_PATH: bevformer/bevformer   # ✅ 改成你控制台真实存在的 namespace/repo
+      REGISTRY: crpi-0a38dh228o5y7lb7.cn-shanghai.personal.cr.aliyuncs.com     # 例如：crpi-xxxx.cn-shanghai.personal.cr.aliyuncs.com
+      REPO_PATH: bevformer/bevformer        # 例如：bevformer/bevformer
       TAG: v1.0-mini
-    steps:
-      - name: Login to Aliyun ACR
-        uses: docker/login-action@v3
-        with:
-          registry: crpi-0a38dh228o5y7lb7.cn-shanghai.personal.cr.aliyuncs.com
-          username: tabqe
-          password: zxc.15937538933
+      ACR_USER: tabqe
+      ACR_PASS: zxc.15937538933
 
-      - name: Pull, tag, push
+    steps:
+      - name: Show disk
+        run: df -h
+
+      # 用 skopeo 容器做“仓库到仓库”复制，不解压到 overlay2
+      - name: Copy image DockerHub -> ACR (no local pull)
         run: |
           set -eux
-          docker pull aitotra/bevformer:${TAG}
-          docker tag aitotra/bevformer:${TAG} ${REGISTRY}/${REPO_PATH}:${TAG}
-          docker push ${REGISTRY}/${REPO_PATH}:${TAG}
+          SRC="docker://docker.io/aitotra/bevformer:${TAG}"
+          DST="docker://${REGISTRY}/${REPO_PATH}:${TAG}"
+
+          docker run --rm quay.io/skopeo/stable:latest \
+            copy --all \
+            --dest-creds "${ACR_USER}:${ACR_PASS}" \
+            "${SRC}" "${DST}"
 
