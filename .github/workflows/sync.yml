@@ -8,7 +8,7 @@ jobs:
       uses: docker/login-action@v2
       with:
         # 这里用你的公网地址
-        registry: crpi-0a38dh228o5y7lb7.cn-shanghai.personal.cr.aliyuncs.com/bevormer2/bevformer2
+        registry: crpi-0a38dh228o5y7lb7.cn-shanghai.personal.cr.aliyuncs.com
         username: tabqe # 你的阿里云账号名
         password: zxc.15937538933 # 你在控制台设置的“访问凭证”密码
     - name: Pull and Push
